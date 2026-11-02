@@ -110,9 +110,10 @@ async def get_song_by_id(song_id):
 async def add_song_to_playlist(user_id, song_id):
     try:
         conn = await connection_db()
-        await conn.execute("""
-            insert into playlist_items(user_id, songs_id) values
-            ($1, $2)
+        result = await conn.execute("""
+            insert into playlist_items(user_id, songs_id)
+            select user_id, $2 from users
+            where telegram_id = $1
         """, str(user_id), song_id)
         return True
     except Exception as Error:
@@ -123,19 +124,24 @@ async def add_song_to_playlist(user_id, song_id):
 
 
 
+
+
+
 async def remove_song_from_playlist(user_id, song_id):
     try:
         conn = await connection_db()
-        await conn.execute("""
-            delete from playlist_items
-            where user_id = $1 and songs_id = $2
-        """, user_id, song_id)
+        result = await conn.execute("""
+            delete from playlist_items using users
+            where users.user_id = playlist_items.user_id and users.telegram_id = $1 and playlist_items.songs_id = $2
+        """, str(user_id), song_id)
         return True
     except Exception as Error:
         print(f"Remove Error: {Error}")
         return False
     finally:
         await conn.close()
+
+
 
 
 async def get_user_playlist(user_id):

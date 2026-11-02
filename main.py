@@ -50,6 +50,8 @@ Music Playlist Bot
 /cancel - Cancel current action
 """)
 
+
+
 async def main():
     await create_table()
     print("Bot started")

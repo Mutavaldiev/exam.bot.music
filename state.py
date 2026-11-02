@@ -57,7 +57,7 @@ async def get_audio_song(message: Message, state: FSMContext):
     audio = message.audio
     await state.update_data(audio_file_id=audio.file_id)
     data = await state.get_data()
-    author_id = str(message.from_user.id)
+    author_id = message.from_user.id
     if await add_song_db(data["title"],data["artist"],data["audio_file_id"],author_id):
         await message.answer("Song added successfully!")
     else:
